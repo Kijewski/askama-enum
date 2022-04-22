@@ -1,3 +1,5 @@
+#![cfg(feature = "testing")]
+
 use askama_enum::EnumTemplate;
 
 #[derive(EnumTemplate)]

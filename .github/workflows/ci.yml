@@ -62,9 +62,9 @@ jobs:
             ~/.cargo/git/db/
             target/
 
-      - run: cargo check --workspace --all-targets
+      - run: cargo check --workspace --all-targets --all-features
 
-      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   test:
     strategy:
@@ -102,7 +102,7 @@ jobs:
             ~/.cargo/git/db/
             target/
 
-      - run: cargo test --workspace --all-targets
+      - run: cargo test --workspace --all-targets --features testing
 
   doc:
     name: "Documentation"
@@ -135,7 +135,7 @@ jobs:
             ~/.cargo/git/db/
             target/
 
-      - run: cargo doc --workspace
+      - run: cargo doc --workspace --features docsrs
 
   audit:
     runs-on: ubuntu-latest

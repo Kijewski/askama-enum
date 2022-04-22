@@ -1,6 +1,6 @@
 [package]
 name = "askama-enum"
-version = "0.0.1"
+version = "0.0.2"
 description = "Implement different askama templates for different enum variants"
 homepage = "https://github.com/Kijewski/askama-enum"
 repository = "https://github.com/Kijewski/askama-enum"
@@ -12,8 +12,16 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
+askama = { version = "0.11.1", optional = true, default-features = false }
 quote = "1"
 syn = { version = "1", features = ["full"] }
 
-[dev-dependencies]
-askama = "0.11.1"
+[features]
+# Internal feature, used when generating docs. *You* are not supposed to enable this feature!
+docsrs = ["askama"]
+
+# Internal feature, used when testing.
+testing = ["askama"]
+
+[package.metadata.docs.rs]
+features = ["docsrs"]

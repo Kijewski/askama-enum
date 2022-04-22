@@ -24,6 +24,55 @@
 //! ![License](https://img.shields.io/badge/license-ISC%2FMIT%2FApache--2.0%20WITH%20LLVM--exception-informational?logo=apache)
 //!
 //! Implement different [Askama](https://crates.io/crates/askama) templates for different enum variants.
+//!
+//! You can add a default `#[template]` for variants that don't have a specific `#[template]` attribute.
+//! If omitted, then every variant needs its own `#[template]` attribute.
+//! The `#[template]` attribute is not interpreted, but simply copied to be used by askama.
+//!
+//! ```rust
+//! # #[cfg(feature = "askama")] fn main() {
+//! # use askama_enum::EnumTemplate;
+//! #[derive(EnumTemplate)]
+//! #[template(ext = "html", source = "default")] // default, optional
+//! enum MyEnum<'a, T: std::fmt::Display> {
+//!     // uses the default `#[template]`
+//!     A,
+//!
+//!     // uses specific `#[template]`
+//!     #[template(ext = "html", source = "B")]
+//!     B,
+//!
+//!     // you can use tuple structs
+//!     #[template(
+//!         ext = "html",
+//!         source = "{{self.0}} {{self.1}} {{self.2}} {{self.3}}",
+//!     )]
+//!     C(u8, &'a u16, u32, &'a u64),
+//!
+//!     // and named fields, too
+//!     #[template(ext = "html", source = "{{some}} {{fields}}")]
+//!     D { some: T, fields: T },
+//! }
+//!
+//! assert_eq!(
+//!     MyEnum::A::<&str>.to_string(),
+//!     "default",
+//! );
+//! assert_eq!(
+//!     MyEnum::B::<&str>.to_string(),
+//!     "B",
+//! );
+//! assert_eq!(
+//!     MyEnum::C::<&str>(1, &2, 3, &4).to_string(),
+//!     "1 2 3 4",
+//! );
+//! assert_eq!(
+//!     MyEnum::D { some: "some", fields: "fields" }.to_string(),
+//!     "some fields",
+//! );
+//! # }
+//! ```
+//!
 
 use std::iter::FromIterator;
 
@@ -35,23 +84,7 @@ use syn::{parse_quote, DeriveInput, Token};
 
 /// Implement different Askama templates for different enum variants
 ///
-/// You can add a default `#[template]` for variants that don't have a specific `#[template]` attribute.
-/// If omitted, then every variant needs its own `#[template]` attribute.
-/// The `#[template]` attribute is not interpreted, but simply copied to be used by askama.
-///
-/// ```ignote
-/// #[derive(EnumTemplate)]
-/// #[template(path = "default.html", ...)] // default, optional
-/// enum MyEnum<'a, T: std::fmt::Display> {
-///     A, // uses "default.html" `#[template]`
-///     #[template(path = "b.txt", ...)]
-///     B, // uses "b.txt"
-///     #[template(path = "c.txt", ...)]
-///     C(u8, &'a u16, u32, &'a u64), // You can use tuple structs
-///     #[template(path = "d.txt", ...)]
-///     D { some: T, fields: T }, // and named fields, too.
-/// }
-/// ```
+/// Please see the [crate] documentation for more examples.
 #[proc_macro_derive(EnumTemplate, attributes(template))]
 pub fn derive_enum_template(input: TokenStream) -> TokenStream {
     let ast: syn::DeriveInput = syn::parse(input).unwrap();
@@ -154,7 +187,7 @@ pub fn derive_enum_template(input: TokenStream) -> TokenStream {
             impl #impl_generics ::std::fmt::Display for #enum_name #ty_generics #where_clause {
                 #[inline]
                 fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                    ::askama::Template::render_into(self, f).map_err(|_| ::std::fmt::Error {})
+                    askama::Template::render_into(self, f).map_err(|_| ::std::fmt::Error {})
                 }
             }
         };
