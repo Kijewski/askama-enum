@@ -14,7 +14,7 @@ proc-macro = true
 [dependencies]
 askama = { version = "0.11.1", optional = true, default-features = false }
 quote = "1"
-syn = { version = "1", features = ["full"] }
+syn = { version = "2", features = ["full"] }
 
 [features]
 # Internal feature, used when generating docs. *You* are not supposed to enable this feature!
